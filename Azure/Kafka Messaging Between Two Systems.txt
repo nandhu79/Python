@@ -1,0 +1,77 @@
+Kafka Messaging Between Two Systems (Step-by-Step)
+Step 1: Go to Kafka folder
+
+On your VM:
+
+cd ~/kafka_2.13-4.2.0
+⚙️ Step 2: Configure Kafka for external access
+
+Open config file:
+
+nano config/server.properties
+
+Find and update/add:
+
+listeners=PLAINTEXT://0.0.0.0:9092
+advertised.listeners=PLAINTEXT://20.89.67.160:9092
+
+
+Step 3: Restart Kafka server
+bin/kafka-server-stop.sh
+bin/kafka-server-start.sh config/server.properties
+🌐 Step 4: Open port in Azure VM
+
+In Azure Portal:
+
+Go to your VM
+Click Networking
+Add Inbound rule:
+Port: 9092
+Protocol: TCP
+Action: Allow
+🧪 Step 5: Create topic (only once)
+bin/kafka-topics.sh --create \
+--topic test-topic \
+--bootstrap-server 20.89.67.160:9092 \
+--partitions 1 \
+--replication-factor 1
+Step 6: Friend runs consumer
+
+On your friend’s system:
+
+bin/kafka-console-consumer.sh \
+--topic test-topic \
+--from-beginning \
+--bootstrap-server 20.89.67.160:9092
+
+ Now your friend is listening
+
+💬 Step 7: You run producer
+
+On your VM:
+
+bin/kafka-console-producer.sh \
+--topic test-topic \
+--bootstrap-server 20.89.67.160:9092
+
+Type messages:
+
+hello
+how are you
+🎉 Step 8: Output
+
+Your friend will instantly see:
+
+hello
+how are you
+🧠 Key Idea (Very Important)
+localhost → same system only 
+20.89.67.160 → remote communication 
+Kafka works like a message bridge between machines
+
+Troubleshooting
+Friend not receiving messages?
+Check Kafka running
+Check port 9092 open
+Check IP correct
+Connection refused?
